@@ -1,4 +1,5 @@
 import re
+import os
 import json
 from typing import cast
 
@@ -19,7 +20,9 @@ def main(args: ParaphraseQueryFreeArguments):
 
     records = ds["test"].to_pandas().to_records()
     results = []
-    for batch in tqdm(batchify(records, args.batch_size)):
+    if os.path.exists(args.result_file_path):
+        results = json.load(open(args.result_file_path, "r"))
+    for batch in tqdm(batchify(records, args.batch_size)[len(results):]):
         llm = VLLMOpenAI(
             openai_api_key="EMPTY",
             openai_api_base=f"http://localhost:{args.vllm_port}/v1",
@@ -29,8 +32,13 @@ def main(args: ParaphraseQueryFreeArguments):
             temperature=0.7,
             verbose=False,
             request_timeout=300,
-            max_tokens=int(
-                max(len(tokenizer(_["text"])["input_ids"]) for _ in batch) * 1.05
+            max_tokens=min(
+                int(
+                    max(len(tokenizer(_["text"])["input_ids"]) for _ in batch) * 1.05
+                ),
+                8192 - int(
+                    max(len(tokenizer(_["text"])["input_ids"]) for _ in batch) * 1.05
+                ),
             ),
         )
 
