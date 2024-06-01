@@ -27,3 +27,27 @@ class ParaphraseQueryFreeArguments:
         default='/home/d.balobin/LLM-Detector-Robustness/test_results.json',
         metadata={"help": "Path where to save intermediate results."},
     )
+
+
+@dataclass
+class ParaphraseQueryBasedArguments(ParaphraseQueryFreeArguments):
+    num_generations: int = field(
+        default=2,
+        metadata={"help": "Number of generations for each example."},
+    )
+    k: int = field(
+        default=3,
+        metadata={"help": "Each generation capacity."},
+    )
+    detector_path: str = field(
+        default="/home/d.balobin/LLM-Detector-Robustness/classifiers/model_bpe-llama2.pickle",
+        metadata={"help": "Path to sklearn classifier."},
+    )
+    detector_tokenizer: str = field(
+        default="AlexWortega/LLama2-7b",
+        metadata={"help": "Path to detector tokenizer."},
+    )
+    result_file_path: str = field(
+        default='/home/d.balobin/LLM-Detector-Robustness/test_results_qb.json',
+        metadata={"help": "Path where to save intermediate results."},
+    )
