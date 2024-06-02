@@ -51,3 +51,11 @@ class ParaphraseQueryBasedArguments(ParaphraseQueryFreeArguments):
         default='/home/d.balobin/LLM-Detector-Robustness/test_results_qb.json',
         metadata={"help": "Path where to save intermediate results."},
     )
+
+
+@dataclass
+class OptimizePropmtArguments(ParaphraseQueryBasedArguments):
+    meta_prompt: str = field(
+        default="Rewrite the prompt (which i provide you in the next message) for a large language model to rephrase any text so that writes most like a human. You can add some text or change it, but make it small in volume. Just write a new prompt, it must work with any text. Do not ask me about text examples.",
+        metadata={"help": "System propmt for paraphrasing paraphrase prompt."},
+    )
