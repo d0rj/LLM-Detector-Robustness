@@ -1,4 +1,5 @@
 import re
+import os
 import json
 import pickle
 from typing import cast
@@ -10,7 +11,6 @@ from sklearn.base import BaseEstimator
 from langchain_community.llms import VLLMOpenAI
 from transformers import AutoTokenizer, HfArgumentParser
 
-from utils import batchify
 from load_data import semeval
 from arguments import ParaphraseQueryBasedArguments
 
@@ -62,6 +62,7 @@ class TextGenerationGA:
 
     def fitness_func(self, ga_instance, solution, solution_idx):
         paraphrase = self.current_paraphrases[int(solution[0])]
+        paraphrase = ' '.join(map(str, self.detector_tokenizer.encode(paraphrase)))
         prediction = self.detector.predict([paraphrase])
         return 1 - prediction[0]
 
@@ -99,7 +100,9 @@ def main(args: ParaphraseQueryBasedArguments):
 
     records = ds["test"].to_pandas().to_records()
     results = []
-    for row in tqdm(records):
+    if os.path.exists(args.result_file_path):
+        results = json.load(open(args.result_file_path, "r"))
+    for row in tqdm(records[len(results):]):
         ga_instance = TextGenerationGA(
             tokenizer,
             detector,
